@@ -67,71 +67,88 @@ EndFunc
 Func DownloadBook()
 	;MsgBox(64, "test", $number_of_pages)
 	GUISetState(@SW_MINIMIZE)
-	DownloadPage("C:\Users\crazysaem\Documents\TestDownload", 151)
+	
+	DownloadPage("C:\Users\crazysaem\Documents\TestDownload", 152, "u", "Grafik speichern", 120, 10000, 0 )
+	Sleep(100)
 	
 	For $i = 1 to ($number_of_pages-1) Step 1
-		MouseClick("primary", $pos_next[0], $pos_next[1])
-		Sleep(100)
-		DownloadPage("C:\Users\crazysaem\Documents\TestDownload", ($i+151) )
+		MouseClick("primary", $pos_next[0], $pos_next[1], 1, 0)		
+		DownloadPage("C:\Users\crazysaem\Documents\TestDownload", ($i+152), "u", "Grafik speichern", 120, 10000, 0 )
 	Next
 EndFunc
 
-Func DownloadPage($dir, $name)
+Func _WinWaitActive($windowname, $delay)
+	;Sleep($delay)
+	;Local int $end
+	;$end = $delay/100
+	For $i = 0 to $delay Step 100
+		if(WinActive($windowname)) Then
+			return 1
+		Else
+			Sleep(100)
+		EndIf		
+	Next
+	return 0
+EndFunc
+
+Func DownloadPage($dir, $name, $dlkey, $savewindow, $buttondelay, $windowfocusdelay, $movespeed)
 	Local $count
 	$count = 0
-	MouseClick("secondary", $pos_page[0], $pos_page[1])
+	MouseClick("secondary", $pos_page[0], $pos_page[1], 1, $movespeed)
 	Sleep(200)
-	Send("l")
+	Send($dlkey)
 	;MouseClick("primary", $pos_page[0]+5, $pos_page[1]+5)
 	;Sleep(300)
-	While (WinWaitActive("Speichern unter", "", 10)==0)		
-		MouseClick("primary", $pos_page[0]-10, $pos_page[1])
-		MouseClick("secondary", $pos_page[0], $pos_page[1])
+	While (_WinWaitActive($savewindow, $windowfocusdelay)==0)		
+		MouseClick("primary", $pos_page[0]-10, $pos_page[1], 1, $movespeed)
+		MouseClick("secondary", $pos_page[0], $pos_page[1], 1, $movespeed)
 		Sleep(350)
-		If(NOT WinActive("Speichern unter")) Then
-			Send("l")
+		If(NOT WinActive($savewindow)) Then
+			Send($dlkey)
 		Else
-			MouseClick("primary", 50, 2)
+			MouseClick("primary", 50, 5, 1, $movespeed)
 		EndIf
 		$count = $count + 1		
 	WEnd
 	
 	If($count>0) Then
 		Sleep(666*$count)
-		MouseClick("primary", 50, 5)
+		MouseClick("primary", 50, 5, 1, $movespeed)
 	EndIf
 	
-	For $i = 1 to 5 Step 1
-		Sleep(50)
-		Send("{TAB}")
-	Next
-	Sleep(50)
-	Send("{ENTER}")
-	Sleep(50)
-	Send($dir)
-	Sleep(50)
-	Send("{ENTER}")
-	For $i = 1 to 5 Step 1
-		Sleep(50)
-		Send("{TAB}")
-	Next
-	Sleep(50)
-	Send($name)
-	Sleep(50)
-	For $i = 1 to 3 Step 1
-		Sleep(50)
-		Send("{TAB}")
-	Next
-	Sleep(50)
-	Send("{ENTER}")
+;~ 	For $i = 1 to 5 Step 1
+;~ 		Sleep($buttondelay)
+;~ 		Send("{TAB}")
+;~ 	Next
+;~ 	Sleep($buttondelay)
+;~ 	Send("{ENTER}")
+;~ 	Sleep($buttondelay)
+;~ 	Send($dir)
+;~ 	Sleep($buttondelay)
+;~ 	Send("{ENTER}")
+;~ 	For $i = 1 to 5 Step 1
+;~ 		Sleep($buttondelay)
+;~ 		Send("{TAB}")
+;~ 	Next
 	
-	If(WinActive("Speichern unter")) Then
-		While (WinWaitActive("Speichern unter", "", 1)<>0)
+	Sleep($buttondelay)
+	Send($name)
+	Sleep($buttondelay)
+	For $i = 1 to 3 Step 1
+		Sleep($buttondelay)
+		Send("{TAB}")
+	Next
+	Sleep($buttondelay)
+	Send("{ENTER}")
+	Sleep($buttondelay)
+	
+	If(WinActive($savewindow)) Then
+		While (_WinWaitActive($savewindow, 1000)<>0)
 			;MouseClick("primary", 50, 5)
-			WinActivate("Speichern unter")
-			Sleep(50)
+			WinActivate($savewindow)
+			Sleep($buttondelay)
 			Send("{ESC}")
-			Sleep(50)
+			Sleep($buttondelay)
 		WEnd
 	EndIf
 	
